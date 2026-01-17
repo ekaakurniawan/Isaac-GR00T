@@ -25,7 +25,7 @@ source "$UV_ENV/.venv/bin/activate"
 uv pip install setuptools wheel
 
 # Heavy deps first
-uv pip install torch==2.5.1 torchvision==0.20.1
+uv pip install torch==2.5.1+cpu torchvision==0.20.1+cpu --index-url "https://download.pytorch.org/whl/cpu"
 
 # Preinstall flash-attn to avoid builds inside other installs.
 # Guard it to Linux only (flash-attn not supported on macOS).
@@ -38,7 +38,7 @@ fi
 
 # Core sim deps: robosuite first (as per README), then this repo editable
 # README: https://github.com/robocasa/robocasa-gr1-tabletop-tasks
-uv pip install "git+https://github.com/ARISE-Initiative/robosuite.git@master"
+uv pip install "git+https://github.com/ARISE-Initiative/robosuite.git@v1.5.1"
 
 # The repo’s requirements.txt only contains "-e .", so just install editable.
 uv pip install -e "$ROBOCASA_GR1_TABLETOP_TASKS_REPO" --config-settings editable_mode=compat

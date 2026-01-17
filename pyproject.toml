@@ -24,7 +24,6 @@ dependencies = [
     "torchvision==0.22.0",
     "transformers==4.51.3",
     "tyro==0.9.17",
-    "flash-attn==2.7.4.post1",
     "click==8.1.8",
     "datasets==3.6.0",
     "einops==0.8.1",
@@ -94,3 +93,12 @@ force-wrap-aliases = false
 split-on-trailing-comma = false
 lines-after-imports = 2
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+torchvision = { index = "pytorch" }
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

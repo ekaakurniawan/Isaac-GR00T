@@ -78,7 +78,58 @@ GR00T N1.6 is intended for researchers and professionals in robotics. This repos
 
 The focus is on enabling customization of robot behaviors through finetuning.
 
-## Installation Guide
+## Installation Guide and Quick Start on x86 CPU
+
+```sh
+sudo snap install astral-uv
+```
+
+### Server
+
+Setup server.
+
+```sh
+git clone https://github.com/ekaakurniawan/Isaac-GR00T.git
+cd Isaac-GR00T/
+git submodule update --init --recursive
+uv sync --python 3.10
+uv pip install -e .
+```
+
+Run server.
+
+```sh
+uv run python gr00t/eval/run_gr00t_server.py \
+  --model-path nvidia/GR00T-N1.6-3B \
+  --embodiment-tag GR1 \
+  --use-sim-policy-wrapper \
+  --device cpu
+```
+
+### Client
+
+Setup client.
+
+```sh
+sudo apt update
+sudo apt install libegl1-mesa-dev libglu1-mesa
+bash gr00t/eval/sim/robocasa-gr1-tabletop-tasks/setup_RoboCasaGR1TabletopTasks.sh
+```
+
+Run client.
+
+```sh
+gr00t/eval/sim/robocasa-gr1-tabletop-tasks/robocasa_uv/.venv/bin/python gr00t/eval/rollout_policy.py \
+  --n_episodes 10 \
+  --policy_client_host 127.0.0.1 \
+  --policy_client_port 5555 \
+  --max_episode_steps=720 \
+  --env_name gr1_unified/PnPBottleToCabinetClose_GR1ArmsAndWaistFourierHands_Env \
+  --n_action_steps 8 \
+  --n_envs 5
+```
+
+## Installation Guide on NVIDIA GPU
 
 ### Clone the Repository
 
