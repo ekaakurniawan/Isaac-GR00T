@@ -25,7 +25,7 @@ source "$UV_ENV/.venv/bin/activate"
 uv pip install setuptools wheel
 
 # Heavy deps first
-uv pip install torch==2.5.1+cpu torchvision==0.20.1+cpu --index-url "https://download.pytorch.org/whl/cpu"
+uv pip install torch==2.5.1 torchvision==0.20.1 --index-url "https://download.pytorch.org/whl/cpu"
 
 # Preinstall flash-attn to avoid builds inside other installs.
 # Guard it to Linux only (flash-attn not supported on macOS).

@@ -22,6 +22,7 @@ dependencies = [
     "termcolor==3.2.0",
     "torch==2.7.0",
     "torchvision==0.22.0",
+    "pytorch-triton-xpu==3.3.0",
     "transformers==4.51.3",
     "tyro==0.9.17",
     "click==8.1.8",
@@ -36,6 +37,9 @@ dependencies = [
     "wandb==0.23.0",
     "pyzmq==27.0.1",
     "deepspeed==0.17.6",
+    "openvino-tokenizers[transformers]==2025.4.1",
+    "optimum-intel[nncf]==1.27.0",
+    "transformers_stream_generator==0.0.5 ",
 ]
 
 [project.optional-dependencies]
@@ -97,8 +101,9 @@ section-order = ["future", "standard-library", "third-party", "first-party", "lo
 [tool.uv.sources]
 torch = { index = "pytorch" }
 torchvision = { index = "pytorch" }
+pytorch-triton-xpu = { index = "pytorch" }
 
 [[tool.uv.index]]
 name = "pytorch"
-url = "https://download.pytorch.org/whl/cpu"
+url = "https://download.pytorch.org/whl/xpu"
 explicit = true

@@ -78,7 +78,16 @@ GR00T N1.6 is intended for researchers and professionals in robotics. This repos
 
 The focus is on enabling customization of robot behaviors through finetuning.
 
-## Installation Guide and Quick Start on x86 CPU
+## Installation Guide and Quick Start on XPU
+
+Tested on:
+ - CPU: Intel® Core™ Ultra 9 Processor 285K
+ - CPU Cores: 24 (8 Performance-cores and 16 Efficient-cores)
+ - CPU Threads: 24
+ - Memory: 64 GB
+ - GPU: Intel® Arc™ B580 Graphics
+ - GPU Memory: 12 GB
+ - Storage minimum 250 GB
 
 ```sh
 sudo snap install astral-uv
@@ -103,7 +112,7 @@ uv run python gr00t/eval/run_gr00t_server.py \
   --model-path nvidia/GR00T-N1.6-3B \
   --embodiment-tag GR1 \
   --use-sim-policy-wrapper \
-  --device cpu
+  --device xpu
 ```
 
 ### Client
