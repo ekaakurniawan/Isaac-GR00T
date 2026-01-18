@@ -38,7 +38,7 @@ dependencies = [
     "pyzmq==27.0.1",
     "deepspeed==0.17.6",
     "openvino-tokenizers[transformers]==2025.4.1",
-    "optimum-intel[nncf]==1.27.0",
+    "optimum-intel[openvino]==1.27.0",
     "transformers_stream_generator==0.0.5 ",
     "onnx>=1.20.0",
 ]

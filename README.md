@@ -78,6 +78,190 @@ GR00T N1.6 is intended for researchers and professionals in robotics. This repos
 
 The focus is on enabling customization of robot behaviors through finetuning.
 
+## Installation Guide and Quick Start on OpenVINO™
+
+Tested on:
+ - CPU: Intel® Core™ Ultra 9 Processor 285K
+ - CPU Cores: 24 (8 Performance-cores and 16 Efficient-cores)
+ - CPU Threads: 24
+ - Memory: 64 GB
+ - GPU: Intel® Arc™ B580 Graphics
+ - GPU Memory: 12 GB
+ - Storage minimum 250 GB
+
+Install packages.
+
+```sh
+sudo apt install git-lfs
+sudo git lfs install
+sudo snap install astral-uv
+```
+
+Setup environment.
+
+```sh
+uv sync --python 3.10
+uv pip install -e .
+```
+
+Download dataset.
+
+```sh
+git clone \
+  --filter=blob:none \
+  --no-checkout \
+  https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-GR00T-X-Embodiment-Sim
+cd PhysicalAI-Robotics-GR00T-X-Embodiment-Sim
+git sparse-checkout init --cone
+git sparse-checkout set \
+  "gr1_unified.PnPBottleToCabinetClose_GR1ArmsAndWaistFourierHands_1000"
+git checkout
+```
+
+Change modality from `ego_view` to `ego_view_bg_crop_pad_res256_freq20`
+in `modality.json` the dataset, from;
+```json
+    "video": {
+        "ego_view": {
+            "original_key": "observation.images.ego_view"
+        }
+    },
+```
+to;
+```json
+    "video": {
+        "ego_view_bg_crop_pad_res256_freq20": {
+            "original_key": "observation.images.ego_view"
+        }
+    },
+```
+
+### Convert Model to ONNX™
+
+```sh
+uv run python scripts/deployment/export_onnx_n1d6.py \
+  --model_path nvidia/GR00T-N1.6-3B \
+  --dataset_path $HOME/Workspace/datasets/PhysicalAI-Robotics-GR00T-X-Embodiment-Sim/gr1_unified.PnPBottleToCabinetClose_GR1ArmsAndWaistFourierHands_1000 \
+  --output_dir ./groot_n1d6_onnx
+```
+
+Error message.
+
+```
+Traceback (most recent call last):
+  File "/home/eka/Workspace/Isaac-GR00T/scripts/deployment/export_onnx_n1d6.py", line 396, in <module>
+    main(args)
+  File "/home/eka/Workspace/Isaac-GR00T/scripts/deployment/export_onnx_n1d6.py", line 339, in main
+    observation = prepare_observation(policy, dataset, traj_idx=0)
+  File "/home/eka/Workspace/Isaac-GR00T/scripts/deployment/export_onnx_n1d6.py", line 110, in prepare_observation
+    traj = dataset[traj_idx]
+  File "/home/eka/Workspace/Isaac-GR00T/gr00t/data/dataset/lerobot_episode_loader.py", line 486, in __getitem__
+    video_data = self._load_video_data(episode_id, np.arange(actual_length))
+  File "/home/eka/Workspace/Isaac-GR00T/gr00t/data/dataset/lerobot_episode_loader.py", line 377, in _load_video_data
+    video_data[image_key] = get_frames_by_indices(
+  File "/home/eka/Workspace/Isaac-GR00T/gr00t/utils/video_utils.py", line 274, in get_frames_by_indices
+    decoder = torchcodec.decoders.VideoDecoder(
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/torchcodec/decoders/_video_decoder.py", line 89, in __init__
+    self._decoder = create_decoder(source=source, seek_mode=seek_mode)
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/torchcodec/decoders/_decoder_utils.py", line 27, in create_decoder
+    return core.create_from_file(source, seek_mode)
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/torch/_ops.py", line 829, in __call__
+    return self._op(*args, **kwargs)
+NotImplementedError: There were no tensor arguments to this function (e.g., you passed an empty list of Tensors), but no fallback function is registered for schema torchcodec_ns::create_from_file.  This usually means that this function requires a non-empty list of Tensors, or that you (the operator writer) forgot to register a fallback function.  Available functions are [XPU, Meta, BackendSelect, Python, FuncTorchDynamicLayerBackMode, Functionalize, Named, Conjugate, Negative, ZeroTensor, ADInplaceOrView, AutogradOther, AutogradCPU, AutogradCUDA, AutogradXLA, AutogradMPS, AutogradXPU, AutogradHPU, AutogradLazy, AutogradMTIA, AutogradMAIA, AutogradMeta, Tracer, AutocastCPU, AutocastMTIA, AutocastMAIA, AutocastXPU, AutocastMPS, AutocastCUDA, FuncTorchBatched, BatchedNestedTensor, FuncTorchVmapMode, Batched, VmapMode, FuncTorchGradWrapper, PythonTLSSnapshot, FuncTorchDynamicLayerFrontMode, PreDispatch, PythonDispatcher].
+
+XPU: registered at /pytorch/build/xpu/ATen/RegisterXPU_0.cpp:54657 [backend fallback]
+Meta: registered at /dev/null:160 [kernel]
+BackendSelect: fallthrough registered at /pytorch/aten/src/ATen/core/BackendSelectFallbackKernel.cpp:3 [backend fallback]
+Python: registered at /__w/torchcodec/torchcodec/pytorch/torchcodec/src/torchcodec/_core/custom_ops.cpp:645 [kernel]
+FuncTorchDynamicLayerBackMode: registered at /pytorch/aten/src/ATen/functorch/DynamicLayer.cpp:479 [backend fallback]
+Functionalize: registered at /pytorch/aten/src/ATen/FunctionalizeFallbackKernel.cpp:375 [backend fallback]
+Named: registered at /pytorch/aten/src/ATen/core/NamedRegistrations.cpp:7 [backend fallback]
+Conjugate: registered at /pytorch/aten/src/ATen/ConjugateFallback.cpp:17 [backend fallback]
+Negative: registered at /pytorch/aten/src/ATen/native/NegateFallback.cpp:18 [backend fallback]
+ZeroTensor: registered at /pytorch/aten/src/ATen/ZeroTensorFallback.cpp:86 [backend fallback]
+ADInplaceOrView: fallthrough registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:104 [backend fallback]
+AutogradOther: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:63 [backend fallback]
+AutogradCPU: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:67 [backend fallback]
+AutogradCUDA: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:75 [backend fallback]
+AutogradXLA: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:87 [backend fallback]
+AutogradMPS: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:95 [backend fallback]
+AutogradXPU: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:71 [backend fallback]
+AutogradHPU: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:108 [backend fallback]
+AutogradLazy: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:91 [backend fallback]
+AutogradMTIA: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:79 [backend fallback]
+AutogradMAIA: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:83 [backend fallback]
+AutogradMeta: registered at /pytorch/aten/src/ATen/core/VariableFallbackKernel.cpp:99 [backend fallback]
+Tracer: registered at /pytorch/torch/csrc/autograd/TraceTypeManual.cpp:294 [backend fallback]
+AutocastCPU: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:322 [backend fallback]
+AutocastMTIA: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:466 [backend fallback]
+AutocastMAIA: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:504 [backend fallback]
+AutocastXPU: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:542 [backend fallback]
+AutocastMPS: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:209 [backend fallback]
+AutocastCUDA: fallthrough registered at /pytorch/aten/src/ATen/autocast_mode.cpp:165 [backend fallback]
+FuncTorchBatched: registered at /pytorch/aten/src/ATen/functorch/LegacyBatchingRegistrations.cpp:731 [backend fallback]
+BatchedNestedTensor: registered at /pytorch/aten/src/ATen/functorch/LegacyBatchingRegistrations.cpp:758 [backend fallback]
+FuncTorchVmapMode: fallthrough registered at /pytorch/aten/src/ATen/functorch/VmapModeRegistrations.cpp:27 [backend fallback]
+Batched: registered at /pytorch/aten/src/ATen/LegacyBatchingRegistrations.cpp:1075 [backend fallback]
+VmapMode: fallthrough registered at /pytorch/aten/src/ATen/VmapModeRegistrations.cpp:33 [backend fallback]
+FuncTorchGradWrapper: registered at /pytorch/aten/src/ATen/functorch/TensorWrapper.cpp:210 [backend fallback]
+PythonTLSSnapshot: registered at /pytorch/aten/src/ATen/core/PythonFallbackKernel.cpp:202 [backend fallback]
+FuncTorchDynamicLayerFrontMode: registered at /pytorch/aten/src/ATen/functorch/DynamicLayer.cpp:475 [backend fallback]
+PreDispatch: registered at /pytorch/aten/src/ATen/core/PythonFallbackKernel.cpp:206 [backend fallback]
+PythonDispatcher: registered at /pytorch/aten/src/ATen/core/PythonFallbackKernel.cpp:198 [backend fallback]
+```
+
+### Convert Model to OpenVINO™
+
+```sh
+uv pip freeze | grep optimum
+```
+```
+optimum==2.1.0
+optimum-intel==1.27.0
+optimum-onnx==0.1.0
+
+```
+
+```sh
+uv run optimum-cli export openvino \
+  --model nvidia/GR00T-N1.6-3B \
+  --weight-format fp16 \
+  /home/eka/Workspace/models/public/gr00t-n1.6-3b/FP16
+```
+
+Error message.
+
+```
+warning: The `extra-build-dependencies` option is experimental and may change without warning. Pass `--preview-features extra-build-dependencies` to disable this warning.
+[2026-01-18 20:36:15,593] [WARNING] [real_accelerator.py:209:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+Multiple distributions found for package optimum. Picked distribution: optimum-onnx
+Traceback (most recent call last):
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/transformers/models/auto/configuration_auto.py", line 1131, in from_pretrained
+    config_class = CONFIG_MAPPING[config_dict["model_type"]]
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/transformers/models/auto/configuration_auto.py", line 833, in __getitem__
+    raise KeyError(key)
+KeyError: 'Gr00tN1d6'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/bin/optimum-cli", line 10, in <module>
+    sys.exit(main())
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/optimum/commands/optimum_cli.py", line 219, in main
+    service.run()
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/optimum/commands/export/openvino.py", line 469, in run
+    main_export(
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/optimum/exporters/openvino/__main__.py", line 282, in main_export
+    task = infer_task(
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/optimum/exporters/openvino/__main__.py", line 114, in infer_task
+    config = AutoConfig.from_pretrained(
+  File "/home/eka/Workspace/Isaac-GR00T/.venv/lib/python3.10/site-packages/transformers/models/auto/configuration_auto.py", line 1133, in from_pretrained
+    raise ValueError(
+ValueError: The checkpoint you are trying to load has model type `Gr00tN1d6` but Transformers does not recognize this architecture. This could be because of an issue with the checkpoint, or because your version of Transformers is out of date.
+
+You can update Transformers with the command `pip install --upgrade transformers`. If this does not work, and the checkpoint is very new, then there may not be a release version that supports this model yet. In this case, you can get the most up-to-date code by installing Transformers from source with the command `pip install git+https://github.com/huggingface/transformers.git`
+```
+
 ## Installation Guide and Quick Start on XPU
 
 Tested on:
