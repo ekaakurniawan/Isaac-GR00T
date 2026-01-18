@@ -167,11 +167,11 @@ def export_dit_to_onnx(
     else:
         dtype = torch.float32
 
-    dit_model = dit_model.cuda()
+    dit_model = dit_model.cpu()
 
-    sa_embs = torch.randn(captured_inputs.sa_embs.shape, dtype=dtype, device="cuda")
-    vl_embs = torch.randn(captured_inputs.vl_embs.shape, dtype=dtype, device="cuda")
-    timestep = torch.ones(captured_inputs.timestep.shape, dtype=torch.int64, device="cuda")
+    sa_embs = torch.randn(captured_inputs.sa_embs.shape, dtype=dtype, device="cpu")
+    vl_embs = torch.randn(captured_inputs.vl_embs.shape, dtype=dtype, device="cpu")
+    timestep = torch.ones(captured_inputs.timestep.shape, dtype=torch.int64, device="cpu")
 
     export_inputs = [sa_embs, vl_embs, timestep]
     input_names = ["sa_embs", "vl_embs", "timestep"]
@@ -189,7 +189,7 @@ def export_dit_to_onnx(
 
     image_mask = None
     if captured_inputs.image_mask is not None:
-        image_mask = torch.ones(captured_inputs.image_mask.shape, dtype=torch.bool, device="cuda")
+        image_mask = torch.ones(captured_inputs.image_mask.shape, dtype=torch.bool, device="cpu")
         export_inputs.append(image_mask)
         input_names.append("image_mask")
         dynamic_axes["image_mask"] = {0: "batch_size", 1: "vl_seq_len"}
@@ -197,7 +197,7 @@ def export_dit_to_onnx(
     backbone_attention_mask = None
     if captured_inputs.backbone_attention_mask is not None:
         backbone_attention_mask = torch.ones(
-            captured_inputs.backbone_attention_mask.shape, dtype=torch.bool, device="cuda"
+            captured_inputs.backbone_attention_mask.shape, dtype=torch.bool, device="cpu"
         )
         export_inputs.append(backbone_attention_mask)
         input_names.append("backbone_attention_mask")
@@ -312,7 +312,7 @@ def main(args):
     policy = Gr00tPolicy(
         embodiment_tag=args.embodiment_tag,
         model_path=args.model_path,
-        device="cuda",
+        device="cpu",
     )
     logger.info(" Policy loaded")
 
