@@ -81,13 +81,23 @@ The focus is on enabling customization of robot behaviors through finetuning.
 ## Installation Guide and Quick Start on XPU
 
 Tested on:
- - CPU: Intel® Core™ Ultra 9 Processor 285K
- - CPU Cores: 24 (8 Performance-cores and 16 Efficient-cores)
- - CPU Threads: 24
- - Memory: 64 GB
- - GPU: Intel® Arc™ B580 Graphics
- - GPU Memory: 12 GB
- - Storage minimum 250 GB
+ - Intel dGPU
+    - CPU: Intel® Core™ Ultra 9 Processor 285K
+    - CPU Cores: 24 (8 Performance-cores and 16 Efficient-cores)
+    - CPU Threads: 24
+    - Memory: 64 GB
+    - dGPU: Intel® Arc™ B580 Graphics
+    - dGPU Memory: 12 GB
+    - Storage: 250 GB (minimum)
+    - OS: Ubuntu 24.04 LTS
+ - Intel iGPU
+    - CPU: Intel® Core™ Ultra X7 Processor 358H
+    - CPU Cores: 16 (4 Performance-cores and 8 Efficient-cores)
+    - CPU Threads: 16
+    - Memory: 32 GB + 32 GB Swap File
+    - iGPU: Intel® Arc™ B390 GPU
+    - Storage: 250 GB (minimum)
+    - OS: Ubuntu 24.04 LTS
 
 ```sh
 sudo snap install astral-uv
@@ -121,7 +131,7 @@ Setup client.
 
 ```sh
 sudo apt update
-sudo apt install libegl1-mesa-dev libglu1-mesa
+sudo apt install libegl1-mesa-dev libglu1-mesa gcc
 bash gr00t/eval/sim/robocasa-gr1-tabletop-tasks/setup_RoboCasaGR1TabletopTasks.sh
 ```
 
